@@ -48,12 +48,11 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       </AnimatePresence>
       <footer className="site-footer">
         <div className="footer-contacts">
-          <p className="eyebrow">Contact</p>
           <a className="contact-row app-contact" href="weixin://" onClick={(event) => openMobileApp(event, "微信", "weixin://")}>
-            <span>微信</span><strong>wyx4530wyx</strong><em>手机端打开 ↗</em>
+            <span>微信</span><strong>wyx4530wyx</strong>
           </a>
           <a className="contact-row app-contact" href="mqq://" onClick={(event) => openMobileApp(event, "QQ", "mqq://")}>
-            <span>QQ</span><strong>3475231791</strong><em>手机端打开 ↗</em>
+            <span>QQ</span><strong>3475231791</strong>
           </a>
           <div className="contact-row email-contact">
             <span>邮箱</span>
@@ -61,7 +60,6 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               <a href="mailto:wyx0424wyx@163.com">wyx0424wyx@163.com</a>
               <a href="mailto:wyx4530wyx@gmail.com">wyx4530wyx@gmail.com</a>
             </strong>
-            <em>发送邮件 ↗</em>
           </div>
         </div>
         <div className="footer-bottom"><span>© 2026 Ibuki</span><span>Shanghai · China</span><span>Built with curiosity</span></div>
