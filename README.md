@@ -1,4 +1,10 @@
-# vinext-starter
+# IBUKI Personal Hub
+
+## Local network preview
+
+Run `npm run dev:lan`, then open `http://<this-computer's-LAN-IP>:3000` on another device connected to the same home network. Keep the terminal and computer awake while using the site.
+
+When a VPN is active, enable its “Allow LAN access”, “Local network sharing”, or split-tunneling option. The local `192.168.x.x` route must remain outside the VPN tunnel.
 
 A clean full-stack starter running on
 [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
