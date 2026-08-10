@@ -47,7 +47,6 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         <motion.main key={pathname} className="page-shell" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: .48, ease: [0.22, 1, 0.36, 1] }}>{children}</motion.main>
       </AnimatePresence>
       <footer className="site-footer">
-        <p className="footer-contact-title">Contact</p>
         <div className="footer-contacts">
           <a className="contact-row app-contact" href="weixin://" onClick={(event) => openMobileApp(event, "微信", "weixin://")}>
             <span>微信</span><strong>wyx4530wyx</strong>
