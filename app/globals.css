@@ -160,7 +160,7 @@ img,video { display:block; width:100%; }
   .hero { align-items:center; padding-bottom:0; }
   .hero-copy { position:absolute; left:0; bottom:5.5vh; }
   .hero h1 { font-size:clamp(4.5rem,27vw,9rem); line-height:.78; }
-  .hero-subrow { width:min(280px,calc(100% - 105px)); grid-template-columns:1fr; gap:24px; margin-top:30px; }
+  .hero-subrow { width:min(280px,calc(100% - 105px)); grid-template-columns:1fr; gap:24px; margin-top:clamp(72px,10vh,92px); }
   .hero-note { justify-self:start; max-width:270px; }
   .round-link { right:4px; bottom:7vh; width:82px; }
   .content-section { padding:90px 0; }
