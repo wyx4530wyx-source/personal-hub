@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useSpring } from "framer-motion";
 import { useEffect, useState } from "react";
 
-const links = [["Home", "/"], ["Posts", "/posts"], ["Videos", "/videos"], ["Downloads", "/downloads"], ["About", "/about"]];
+const links = [["Home", "/"], ["Posts", "/posts"], ["Videos", "/videos"], ["Downloads", "/downloads"], ["About", "/about"], ["管理内容", "/admin"]];
 
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
