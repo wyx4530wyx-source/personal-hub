@@ -25,7 +25,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     event.preventDefault();
     const isMobile = window.matchMedia("(max-width: 800px)").matches || window.matchMedia("(pointer: coarse)").matches;
     if (!isMobile) return;
-    const confirmed = window.confirm(`网站将尝试打开${appName}。\n\n只会打开 App，不会发送消息或执行其他操作。是否继续？`);
+    const confirmed = window.confirm(`网站将尝试打开${appName}。\n\n是否继续？`);
     if (confirmed) window.location.href = scheme;
   };
 
@@ -47,6 +47,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         <motion.main key={pathname} className="page-shell" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: .48, ease: [0.22, 1, 0.36, 1] }}>{children}</motion.main>
       </AnimatePresence>
       <footer className="site-footer">
+        <p className="footer-contact-title">Contact</p>
         <div className="footer-contacts">
           <a className="contact-row app-contact" href="weixin://" onClick={(event) => openMobileApp(event, "微信", "weixin://")}>
             <span>微信</span><strong>wyx4530wyx</strong>
