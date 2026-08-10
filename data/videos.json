@@ -1,0 +1,5 @@
+[
+  {"id":"v01","title":"A quiet afternoon study","date":"2026.07.28","duration":"00:30","description":"A short visual study of movement, texture, and the small details usually passed by.","poster":"/images/geometry.jpg","src":"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"},
+  {"id":"v02","title":"Notes from the edge of town","date":"2026.06.12","duration":"00:30","description":"A minimal field film about concrete structures, open space, and changing light.","poster":"/images/architecture.jpg","src":"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"},
+  {"id":"v03","title":"Making room for unfinished work","date":"2026.05.03","duration":"00:30","description":"A visual note on process: sketches, false starts, and returning with new eyes.","poster":"/images/concrete.jpg","src":"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"}
+]

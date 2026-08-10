@@ -1,0 +1,6 @@
+[
+  {"id":"d01","name":"Creative Notes","description":"A compact set of prompts for beginning personal projects.","size":"2 KB","file":"/downloads/creative-notes.md"},
+  {"id":"d02","name":"Project Starter","description":"A simple checklist for turning an idea into a first working version.","size":"1 KB","file":"/downloads/project-starter.txt"},
+  {"id":"d03","name":"Reference Pack","description":"A small JSON collection of useful links and creative references.","size":"1 KB","file":"/downloads/reference-pack.json"},
+  {"id":"d04","name":"Weekly Review","description":"Questions for a calm, honest weekly creative review.","size":"1 KB","file":"/downloads/weekly-review.md"}
+]
