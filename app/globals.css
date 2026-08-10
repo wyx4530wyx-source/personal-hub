@@ -134,7 +134,7 @@ img,video { display:block; width:100%; }
 .admin-items button { border:1px solid #3a3a3a; border-radius:999px; background:none; color:#aaa; padding:9px 16px; cursor:pointer; }
 .admin-items button:hover { border-color:#8a4545; color:#ef9c9c; }
 .site-footer { width:min(calc(100% - 6.4vw),var(--max-width)); margin:0 auto; padding:38px 0 30px; border-top:1px solid var(--line); }
-.footer-contacts { display:grid; grid-template-columns:.85fr .85fr 1.3fr; margin-bottom:30px; border:1px solid var(--line); }
+.footer-contacts { display:grid; grid-template-columns:.85fr .85fr 1.3fr; margin-bottom:30px; }
 .contact-row { min-width:0; min-height:76px; display:flex; flex-direction:column; justify-content:center; gap:8px; padding:14px 22px; color:var(--foreground); }
 .contact-row+.contact-row { border-left:1px solid var(--line); }
 .contact-row>span { color:var(--muted); font-size:.58rem; letter-spacing:.12em; text-transform:uppercase; }
