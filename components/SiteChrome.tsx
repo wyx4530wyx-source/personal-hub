@@ -21,6 +21,14 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   useEffect(() => setMenuOpen(false), [pathname]);
 
+  const openMobileApp = (event: React.MouseEvent<HTMLAnchorElement>, appName: string, scheme: string) => {
+    event.preventDefault();
+    const isMobile = window.matchMedia("(max-width: 800px)").matches || window.matchMedia("(pointer: coarse)").matches;
+    if (!isMobile) return;
+    const confirmed = window.confirm(`网站将尝试打开${appName}。\n\n只会打开 App，不会发送消息或执行其他操作。是否继续？`);
+    if (confirmed) window.location.href = scheme;
+  };
+
   return (
     <>
       <div className="noise" aria-hidden="true" />
@@ -39,7 +47,23 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         <motion.main key={pathname} className="page-shell" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: .48, ease: [0.22, 1, 0.36, 1] }}>{children}</motion.main>
       </AnimatePresence>
       <footer className="site-footer">
-        <div className="footer-cta"><p>Let’s make<br />something real.</p><a className="footer-circle" href="mailto:hello@example.com" aria-label="Send an email">↗</a></div>
+        <div className="footer-contacts">
+          <p className="eyebrow">Contact</p>
+          <a className="contact-row app-contact" href="weixin://" onClick={(event) => openMobileApp(event, "微信", "weixin://")}>
+            <span>微信</span><strong>wyx4530wyx</strong><em>手机端打开 ↗</em>
+          </a>
+          <a className="contact-row app-contact" href="mqq://" onClick={(event) => openMobileApp(event, "QQ", "mqq://")}>
+            <span>QQ</span><strong>3475231791</strong><em>手机端打开 ↗</em>
+          </a>
+          <div className="contact-row email-contact">
+            <span>邮箱</span>
+            <strong>
+              <a href="mailto:wyx0424wyx@163.com">wyx0424wyx@163.com</a>
+              <a href="mailto:wyx4530wyx@gmail.com">wyx4530wyx@gmail.com</a>
+            </strong>
+            <em>发送邮件 ↗</em>
+          </div>
+        </div>
         <div className="footer-bottom"><span>© 2026 Ibuki</span><span>Shanghai · China</span><span>Built with curiosity</span></div>
       </footer>
     </>
