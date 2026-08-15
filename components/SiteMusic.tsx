@@ -6,6 +6,9 @@ export const siteTracks = [
   { title: "独角", artist: "Local track", src: "/audio/unicorn.mp3" },
   { title: "At The Mountain Behind", artist: "Local track", src: "/audio/at-the-mountain-behind.mp3" },
   { title: "Bloom of Youth", artist: "Key Sounds Label", src: "/audio/bloom-of-youth.mp3" },
+  { title: "未闻花名（小提琴版）", artist: "灵魂配乐师", src: "/audio/anohana-violin.mp3" },
+  { title: "夏影", artist: "麻枝准", src: "/audio/natsukage.mp3" },
+  { title: "サイエンス (feat. 重音テト)", artist: "MIMI & 重音テト", src: "/audio/science-feat-kasane-teto.mp3" },
 ];
 
 type SiteMusicValue = {

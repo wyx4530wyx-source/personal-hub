@@ -72,6 +72,9 @@ test("adds a functional glass About section before the Home content previews", a
   assert.match(music, /\/audio\/unicorn\.mp3/);
   assert.match(music, /\/audio\/at-the-mountain-behind\.mp3/);
   assert.match(music, /\/audio\/bloom-of-youth\.mp3/);
+  assert.match(music, /\/audio\/anohana-violin\.mp3/);
+  assert.match(music, /\/audio\/natsukage\.mp3/);
+  assert.match(music, /\/audio\/science-feat-kasane-teto\.mp3/);
   assert.match(player, /type="range"/);
   assert.match(music, /audio\.play\(\)/);
   assert.match(player, /chooseTrack\(trackIndex - 1\)/);
