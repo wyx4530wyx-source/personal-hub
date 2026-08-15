@@ -9,6 +9,8 @@
     "dev": "vinext dev",
     "dev:lan": "vinext dev --hostname 0.0.0.0",
     "build": "vinext build",
+    "build:cloud": "node scripts/build-cloud.mjs",
+    "deploy:cloud": "wrangler deploy --config dist/server/wrangler.json --keep-vars",
     "start": "vinext start",
     "start:lan": "vinext dev --hostname 0.0.0.0",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
