@@ -45,8 +45,11 @@ export default defineConfig(async () => {
 
   return {
     server: isCodexSeatbeltSandbox
-      ? { watch: { useFsEvents: false, usePolling: true } }
-      : undefined,
+      ? {
+          allowedHosts: [".trycloudflare.com"],
+          watch: { useFsEvents: false, usePolling: true },
+        }
+      : { allowedHosts: [".trycloudflare.com"] },
     plugins: [
       vinext(),
       sites(),

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
+import { INITIAL_LOADER_BOOTSTRAP } from "@/lib/initial-loader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,10 +37,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <script dangerouslySetInnerHTML={{ __html: INITIAL_LOADER_BOOTSTRAP }} />
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

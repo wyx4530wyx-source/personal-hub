@@ -1,6 +1,13 @@
 import { env } from "cloudflare:workers";
 
 export type ContentType = "post" | "video" | "download";
+export type StoredContentBlock =
+  | { type:"text"; text:string }
+  | { type:"image"; key:string; alt:string };
+
+export type PublicContentBlock =
+  | { type:"text"; text:string }
+  | { type:"image"; src:string; alt:string };
 
 export type StoredContent = {
   id: string;
@@ -15,6 +22,7 @@ export type StoredContent = {
   mimeType: string | null;
   fileSize: number;
   galleryKeys: string;
+  contentBlocks: string;
   publishedAt: string;
   createdAt: number;
 };
@@ -45,9 +53,16 @@ export async function ensureContentSchema() {
       mime_type TEXT,
       file_size INTEGER NOT NULL DEFAULT 0,
       gallery_keys TEXT NOT NULL DEFAULT '[]',
+      content_blocks TEXT NOT NULL DEFAULT '[]',
       published_at TEXT NOT NULL,
       created_at INTEGER NOT NULL
     )`),
+  ]);
+  const tableInfo = await DB.prepare("PRAGMA table_info(content_items)").all<{ name:string }>();
+  if (!tableInfo.results.some((column) => column.name === "content_blocks")) {
+    await DB.prepare("ALTER TABLE content_items ADD COLUMN content_blocks TEXT NOT NULL DEFAULT '[]'").run();
+  }
+  await DB.batch([
     DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_content_items_slug ON content_items(slug)"),
     DB.prepare("CREATE INDEX IF NOT EXISTS idx_content_items_type_created ON content_items(type, created_at DESC)"),
   ]);
@@ -59,7 +74,7 @@ export async function listStoredContent(type?: ContentType) {
   const { DB } = getBindings();
   const columns = `id, type, slug, title, description, body,
     cover_key AS coverKey, file_key AS fileKey, file_name AS fileName,
-    mime_type AS mimeType, file_size AS fileSize, gallery_keys AS galleryKeys,
+    mime_type AS mimeType, file_size AS fileSize, gallery_keys AS galleryKeys, content_blocks AS contentBlocks,
     published_at AS publishedAt, created_at AS createdAt`;
   const statement = type
     ? DB.prepare(`SELECT ${columns} FROM content_items WHERE type = ? ORDER BY created_at DESC`).bind(type)
@@ -73,7 +88,7 @@ export async function getStoredContentBySlug(slug: string) {
   const { DB } = getBindings();
   return DB.prepare(`SELECT id, type, slug, title, description, body,
     cover_key AS coverKey, file_key AS fileKey, file_name AS fileName,
-    mime_type AS mimeType, file_size AS fileSize, gallery_keys AS galleryKeys,
+    mime_type AS mimeType, file_size AS fileSize, gallery_keys AS galleryKeys, content_blocks AS contentBlocks,
     published_at AS publishedAt, created_at AS createdAt
     FROM content_items WHERE slug = ? LIMIT 1`).bind(slug).first<StoredContent>();
 }
@@ -91,8 +106,27 @@ export function serializeContent(item: StoredContent) {
     cover: mediaUrl(item.coverKey),
     file: mediaUrl(item.fileKey, item.type === "download"),
     gallery: gallery.map((key) => mediaUrl(key)).filter(Boolean),
+    contentBlocks: parseContentBlocks(item.contentBlocks),
     size: formatBytes(item.fileSize),
   };
+}
+
+export function parseStoredContentBlocks(value: string | null | undefined): StoredContentBlock[] {
+  try {
+    const blocks = JSON.parse(value || "[]") as unknown;
+    if (!Array.isArray(blocks)) return [];
+    return blocks.filter((block): block is StoredContentBlock => {
+      if (!block || typeof block !== "object" || !("type" in block)) return false;
+      if (block.type === "text") return "text" in block && typeof block.text === "string";
+      return block.type === "image" && "key" in block && typeof block.key === "string" && "alt" in block && typeof block.alt === "string";
+    });
+  } catch { return []; }
+}
+
+export function parseContentBlocks(value: string | null | undefined): PublicContentBlock[] {
+  return parseStoredContentBlocks(value).map((block) => block.type === "text"
+    ? block
+    : { type:"image", src:mediaUrl(block.key) as string, alt:block.alt });
 }
 
 export function formatBytes(bytes: number) {

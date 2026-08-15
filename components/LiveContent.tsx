@@ -20,6 +20,7 @@ type ApiItem = {
   fileName: string | null;
   size: string;
   publishedAt: string;
+  createdAt: number;
 };
 
 function useContent(type: ApiItem["type"]) {
@@ -44,6 +45,41 @@ export function LivePosts({ limit }: { limit?: number }) {
   }));
   const all = [...uploaded, ...posts];
   return <div className={`post-grid ${limit ? "" : "archive-grid"}`}>{all.slice(0, limit).map((post, index) => <PostCard key={post.slug} post={post} index={index} />)}</div>;
+}
+
+export function HomeRecentPosts({ limit = 3 }: { limit?: number }) {
+  const uploaded = useContent("post").map((item) => ({
+    slug: item.slug,
+    title: item.title,
+    date: item.publishedAt.replaceAll("-", "."),
+    order: item.createdAt || Date.parse(item.publishedAt),
+  }));
+  const local = (posts as Array<{ slug:string; title:string; date:string }>).map((post) => ({
+    slug: post.slug,
+    title: post.title,
+    date: post.date,
+    order: Date.parse(post.date.replaceAll(".", "-")),
+  }));
+  const recent = [...uploaded, ...local]
+    .sort((a, b) => b.order - a.order)
+    .slice(0, limit);
+
+  if (!recent.length) {
+    return <div className="home-recent-list"><p className="home-recent-empty">暂无帖子</p></div>;
+  }
+
+  return (
+    <div className="home-recent-list" aria-label="最新发布的帖子">
+      {recent.map((post, index) => (
+        <a href={`/posts/${post.slug}`} key={post.slug}>
+          <span>{String(index + 1).padStart(2, "0")}</span>
+          <strong>{post.title}</strong>
+          <time dateTime={post.date.replaceAll(".", "-")}>{post.date}</time>
+          <b aria-hidden="true">→</b>
+        </a>
+      ))}
+    </div>
+  );
 }
 
 export function LiveVideos({ limit }: { limit?: number }) {

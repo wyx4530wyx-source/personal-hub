@@ -1,6 +1,0 @@
-PROJECT STARTER
-
-1. Describe the idea in one sentence.
-2. Define the smallest useful version.
-3. Choose a one-week deadline.
-4. Share the result with one person.
