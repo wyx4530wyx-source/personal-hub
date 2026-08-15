@@ -2,7 +2,7 @@ import { ensureContentSchema, getBindings, listStoredContent, parseStoredContent
 import { isAdminRequest } from "@/lib/admin-auth";
 import { isAdminAccessAllowed } from "@/lib/admin-access-server";
 
-const allowedTypes = new Set<ContentType>(["post", "video", "download"]);
+const allowedTypes = new Set<ContentType>(["post", "video", "download", "music"]);
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const MAX_IMAGE_SIZE = 25 * 1024 * 1024;
 
@@ -70,8 +70,9 @@ export async function POST(request: Request) {
 
     const file = form.get("file") instanceof File ? form.get("file") as File : null;
     const cover = form.get("cover") instanceof File ? form.get("cover") as File : null;
-    if ((type === "video" || type === "download") && !file) return Response.json({ error: "请选择需要上传的文件" }, { status: 400 });
+    if ((type === "video" || type === "download" || type === "music") && !file) return Response.json({ error: "请选择需要上传的文件" }, { status: 400 });
     if (file && file.size > MAX_FILE_SIZE) return Response.json({ error: "单个文件请不要超过 50 MB" }, { status: 400 });
+    if (type === "music" && file && !file.type.startsWith("audio/") && !/\.(mp3|m4a|ogg|wav|flac|aac)$/i.test(file.name)) return Response.json({ error:"请选择正确的音乐文件" }, { status:400 });
     if (cover && cover.size > MAX_IMAGE_SIZE) return Response.json({ error: "封面图片请不要超过 25 MB" }, { status: 400 });
 
     await ensureContentSchema();

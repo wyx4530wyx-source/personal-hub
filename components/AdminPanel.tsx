@@ -2,13 +2,13 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 
-type Kind = "post" | "video" | "download";
+type Kind = "post" | "video" | "download" | "music";
 type Item = { id:string; type:Kind; title:string; description:string; fileName:string|null; size:string; publishedAt:string };
 type TextBlock = { id:string; type:"text"; text:string };
 type ImageBlock = { id:string; type:"image"; file:File|null; alt:string };
 type PostBlock = TextBlock | ImageBlock;
 
-const labels = { post: "发布帖子", video: "上传视频", download: "上传文件" } as const;
+const labels = { post: "发布帖子", video: "上传视频", download: "上传文件", music: "上传音乐" } as const;
 
 function newTextBlock(): TextBlock {
   return { id:crypto.randomUUID(), type:"text", text:"" };
@@ -36,7 +36,7 @@ export function AdminPanel({ onLogout }: { onLogout?:() => void }) {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
-    setMessage(kind === "video" ? "正在上传视频，请不要关闭页面……" : "正在保存……");
+    setMessage(kind === "video" ? "正在上传视频，请不要关闭页面……" : kind === "music" ? "正在上传音乐，请不要关闭页面……" : "正在保存……");
     try {
       const form = new FormData(event.currentTarget);
       form.set("type", kind);
@@ -57,16 +57,17 @@ export function AdminPanel({ onLogout }: { onLogout?:() => void }) {
       formRef.current?.reset();
       setPostBlocks([newTextBlock()]);
       setMessage("已经发布成功。打开网站对应页面就能看到。");
+      if (kind === "music") window.dispatchEvent(new Event("xhub:music-library-changed"));
       await refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "保存失败，请重试");
     } finally { setBusy(false); }
   }
 
-  async function remove(id: string, title: string) {
+  async function remove(id: string, title: string, type: Kind) {
     if (!window.confirm(`确定删除“${title}”吗？删除后无法恢复。`)) return;
     const response = await fetch(`/api/content?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-    if (response.ok) { setMessage("已经删除。"); await refresh(); }
+    if (response.ok) { setMessage("已经删除。"); if (type === "music") window.dispatchEvent(new Event("xhub:music-library-changed")); await refresh(); }
     else setMessage("删除失败，请稍后重试。");
   }
 
@@ -98,8 +99,8 @@ export function AdminPanel({ onLogout }: { onLogout?:() => void }) {
           {(Object.keys(labels) as Kind[]).map((value) => <button type="button" key={value} className={kind === value ? "selected" : ""} onClick={() => { setKind(value); setMessage(""); }}>{labels[value]}</button>)}
         </div>
         <form ref={formRef} onSubmit={submit} className="admin-form">
-          <label><span>{kind === "download" ? "显示名称" : "标题"} <em>必填</em></span><input name="title" required placeholder={kind === "post" ? "例如：今天完成了我的个人网站" : kind === "video" ? "例如：我的第一支短片" : "例如：项目资料包"} /></label>
-          <label><span>简单介绍</span><textarea name="description" rows={3} placeholder="用一两句话介绍这项内容，也可以暂时不填。" /></label>
+          <label><span>{kind === "download" ? "显示名称" : kind === "music" ? "歌曲名称" : "标题"} <em>必填</em></span><input name="title" required placeholder={kind === "post" ? "例如：今天完成了我的个人网站" : kind === "video" ? "例如：我的第一支短片" : kind === "music" ? "例如：夏影" : "例如：项目资料包"} /></label>
+          <label><span>{kind === "music" ? "歌手 / 作者" : "简单介绍"}</span><textarea name="description" rows={3} placeholder={kind === "music" ? "例如：麻枝准，也可以暂时不填。" : "用一两句话介绍这项内容，也可以暂时不填。"} /></label>
 
           {kind === "post" && <>
             <div className="post-block-editor">
@@ -125,6 +126,8 @@ export function AdminPanel({ onLogout }: { onLogout?:() => void }) {
 
           {kind === "download" && <label className="file-field"><span>选择文件 <em>必填</em></span><input name="file" type="file" required /><small>可以上传 PDF、ZIP、图片、文档等，单个文件不超过 50 MB。</small></label>}
 
+          {kind === "music" && <label className="file-field"><span>选择音乐 <em>必填</em></span><input name="file" type="file" accept="audio/*,.mp3,.m4a,.ogg,.wav,.flac,.aac" required /><small>推荐 MP3 格式，单首音乐不超过 50 MB。</small></label>}
+
           <button className="publish-button" type="submit" disabled={busy}>{busy ? "正在处理，请稍等……" : labels[kind]}</button>
           {message && <p className={`admin-message ${message.includes("失败") || message.includes("请") && !message.includes("不要") ? "error" : ""}`} role="status">{message}</p>}
         </form>
@@ -132,7 +135,7 @@ export function AdminPanel({ onLogout }: { onLogout?:() => void }) {
 
       <section className="admin-library">
         <div><p className="eyebrow">已经发布</p><h2>你的内容</h2></div>
-        {items.length === 0 ? <p className="admin-empty">这里还没有你发布的内容。上面发布成功后，会出现在这里。</p> : <div className="admin-items">{items.map((item) => <article key={item.id}><div><span className="content-kind">{item.type === "post" ? "帖子" : item.type === "video" ? "视频" : "文件"}</span><h3>{item.title}</h3><p>{item.publishedAt}{item.fileName ? ` · ${item.fileName} · ${item.size}` : ""}</p></div><button onClick={() => remove(item.id, item.title)}>删除</button></article>)}</div>}
+        {items.length === 0 ? <p className="admin-empty">这里还没有你发布的内容。上面发布成功后，会出现在这里。</p> : <div className="admin-items">{items.map((item) => <article key={item.id}><div><span className="content-kind">{item.type === "post" ? "帖子" : item.type === "video" ? "视频" : item.type === "music" ? "音乐" : "文件"}</span><h3>{item.title}</h3><p>{item.publishedAt}{item.fileName ? ` · ${item.fileName} · ${item.size}` : ""}</p></div><button onClick={() => remove(item.id, item.title, item.type)}>删除</button></article>)}</div>}
       </section>
     </div>
   );

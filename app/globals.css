@@ -232,7 +232,7 @@ img,video { display:block; width:100%; }
 .admin-steps span { border-top:1px solid #d2d2d2; padding:18px 0; color:#55555a; font-size:.86rem; }
 .admin-steps b { display:inline-grid; place-items:center; width:25px; height:25px; margin-right:8px; border-radius:50%; background:#18181a; color:#fff; font-size:.7rem; }
 .admin-card { margin:80px 0 110px; background:#fff; border:1px solid #d8d8d8; border-radius:18px; overflow:hidden; }
-.admin-tabs { display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid #d8d8d8; }
+.admin-tabs { display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid #d8d8d8; }
 .admin-tabs button { min-height:74px; border:0; border-right:1px solid #d8d8d8; background:#f7f7f7; color:#68686d; cursor:pointer; transition:.25s; }
 .admin-tabs button:last-child { border-right:0; }
 .admin-tabs button.selected { background:#18181a; color:#fff; }

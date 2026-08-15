@@ -1,6 +1,6 @@
 import { env } from "cloudflare:workers";
 
-export type ContentType = "post" | "video" | "download";
+export type ContentType = "post" | "video" | "download" | "music";
 export type StoredContentBlock =
   | { type:"text"; text:string }
   | { type:"image"; key:string; alt:string };

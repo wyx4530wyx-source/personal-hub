@@ -2,7 +2,9 @@
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-export const siteTracks = [
+export type SiteTrack = { title:string; artist:string; src:string };
+
+export const siteTracks: SiteTrack[] = [
   { title: "独角", artist: "Local track", src: "/audio/unicorn.mp3" },
   { title: "At The Mountain Behind", artist: "Local track", src: "/audio/at-the-mountain-behind.mp3" },
   { title: "Bloom of Youth", artist: "Key Sounds Label", src: "/audio/bloom-of-youth.mp3" },
@@ -12,8 +14,9 @@ export const siteTracks = [
 ];
 
 type SiteMusicValue = {
+  tracks: SiteTrack[];
   trackIndex: number;
-  track: (typeof siteTracks)[number];
+  track: SiteTrack;
   playing: boolean;
   currentTime: number;
   duration: number;
@@ -27,11 +30,37 @@ const SiteMusicContext = createContext<SiteMusicValue | null>(null);
 export function SiteMusicProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const shouldResumeRef = useRef(false);
+  const [tracks, setTracks] = useState<SiteTrack[]>(siteTracks);
   const [trackIndex, setTrackIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const track = siteTracks[trackIndex];
+  const track = tracks[trackIndex] || siteTracks[0];
+
+  useEffect(() => {
+    let active = true;
+    const loadCloudTracks = async () => {
+      try {
+        const response = await fetch("/api/content?type=music", { cache:"no-store" });
+        if (!response.ok) throw new Error("读取云端音乐失败");
+        const data = await response.json() as { items?:Array<{ title?:string; description?:string; file?:string|null }> };
+        const uploaded = (data.items || [])
+          .filter((item): item is { title:string; description?:string; file:string } => Boolean(item.title && item.file))
+          .map((item) => ({ title:item.title, artist:item.description || "Cloud track", src:item.file }));
+        if (active) setTracks([...siteTracks, ...uploaded]);
+      } catch {
+        if (active) setTracks(siteTracks);
+      }
+    };
+    const refresh = () => { void loadCloudTracks(); };
+    void loadCloudTracks();
+    window.addEventListener("xhub:music-library-changed", refresh);
+    return () => { active = false; window.removeEventListener("xhub:music-library-changed", refresh); };
+  }, []);
+
+  useEffect(() => {
+    if (trackIndex >= tracks.length) setTrackIndex(0);
+  }, [trackIndex, tracks.length]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -42,11 +71,11 @@ export function SiteMusicProvider({ children }: { children: React.ReactNode }) {
     if (shouldResumeRef.current) {
       audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
     }
-  }, [trackIndex]);
+  }, [track.src]);
 
   const chooseTrack = (nextIndex: number) => {
     shouldResumeRef.current = playing;
-    setTrackIndex((nextIndex + siteTracks.length) % siteTracks.length);
+    setTrackIndex((nextIndex + tracks.length) % tracks.length);
   };
 
   const togglePlay = () => {
@@ -68,7 +97,7 @@ export function SiteMusicProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SiteMusicContext.Provider value={{ trackIndex, track, playing, currentTime, duration, togglePlay, chooseTrack, seek }}>
+    <SiteMusicContext.Provider value={{ tracks, trackIndex, track, playing, currentTime, duration, togglePlay, chooseTrack, seek }}>
       <audio
         className="site-music-audio"
         ref={audioRef}
@@ -78,7 +107,7 @@ export function SiteMusicProvider({ children }: { children: React.ReactNode }) {
         onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
-        onEnded={() => { shouldResumeRef.current = true; setTrackIndex((value) => (value + 1) % siteTracks.length); }}
+        onEnded={() => { shouldResumeRef.current = true; setTrackIndex((value) => (value + 1) % tracks.length); }}
       />
       {children}
     </SiteMusicContext.Provider>

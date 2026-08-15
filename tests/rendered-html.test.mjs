@@ -94,6 +94,30 @@ test("adds a functional glass About section before the Home content previews", a
   assert.match(css, /\.home-about-grid>div:nth-child\(4\) \{ grid-column:2\/4; margin-left:12px; \}/);
 });
 
+test("manages uploaded music in the cloud while preserving the built-in playlist", async () => {
+  const [admin, route, store, music, player, css] = await Promise.all([
+    readFile(new URL("../components/AdminPanel.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/content/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/content-store.ts", import.meta.url), "utf8"),
+    readFile(new URL("../components/SiteMusic.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/HomeMusicPlayer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(store, /"post" \| "video" \| "download" \| "music"/);
+  assert.match(route, /\["post", "video", "download", "music"\]/);
+  assert.match(route, /type === "music"\) && !file/);
+  assert.match(route, /file\.type\.startsWith\("audio\/"\)/);
+  assert.match(admin, /music: "上传音乐"/);
+  assert.match(admin, /歌手 \/ 作者/);
+  assert.match(admin, /accept="audio\/\*/);
+  assert.match(admin, /xhub:music-library-changed/);
+  assert.match(music, /fetch\("\/api\/content\?type=music"/);
+  assert.match(music, /setTracks\(\[\.\.\.siteTracks, \.\.\.uploaded\]\)/);
+  assert.match(music, /window\.addEventListener\("xhub:music-library-changed"/);
+  assert.match(player, /tracks\.map\(\(item, index\)/);
+  assert.match(css, /\.admin-tabs \{[^}]*grid-template-columns:repeat\(4,1fr\);/s);
+});
+
 test("persists likes and visits while tracking current online visitors", async () => {
   const [home, stats, tracker, route, store, schema, chrome, css] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),

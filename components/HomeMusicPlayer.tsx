@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { siteTracks, useSiteMusic } from "@/components/SiteMusic";
+import { useSiteMusic } from "@/components/SiteMusic";
 
 function formatTime(value: number) {
   if (!Number.isFinite(value) || value < 0) return "00:00";
@@ -11,7 +11,7 @@ function formatTime(value: number) {
 }
 
 export function HomeMusicPlayer() {
-  const { trackIndex, track, playing, currentTime, duration, togglePlay, chooseTrack, seek } = useSiteMusic();
+  const { tracks, trackIndex, track, playing, currentTime, duration, togglePlay, chooseTrack, seek } = useSiteMusic();
   const [playlistOpen, setPlaylistOpen] = useState(false);
 
   return (
@@ -33,7 +33,7 @@ export function HomeMusicPlayer() {
       </div>
       <div className={`home-music-playlist${playlistOpen ? " is-open" : ""}`} aria-hidden={!playlistOpen}>
         <button className="home-music-playlist-close" type="button" onClick={() => setPlaylistOpen(false)} aria-label="关闭播放列表" tabIndex={playlistOpen ? 0 : -1}>×</button>
-        {siteTracks.map((item, index) => (
+        {tracks.map((item, index) => (
           <button className={index === trackIndex ? "is-current" : ""} type="button" key={item.src} onClick={() => chooseTrack(index)} tabIndex={playlistOpen ? 0 : -1}>
             <span>{String(index + 1).padStart(2, "0")}</span><strong>{item.title}</strong><small>{item.artist}</small>
           </button>
