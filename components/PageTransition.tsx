@@ -85,7 +85,7 @@ export function PageTransition() {
       requestAnimationFrame(() => { root.style.scrollBehavior = previousScrollBehavior; });
       phaseRef.current = "revealing";
       setPhase("revealing");
-    }, 80);
+    }, 500);
 
     return () => clearTimeout(revealTimer);
   }, [pathname, phase]);

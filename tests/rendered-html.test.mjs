@@ -303,6 +303,7 @@ test("adds a guarded curved-curtain transition for internal navigation", async (
   assert.match(transition, /phaseRef\.current !== "idle"/);
   assert.match(transition, /root\.style\.scrollBehavior = "auto"/);
   assert.match(transition, /window\.scrollTo\(0, 0\)/);
+  assert.match(transition, /}, 500\);/);
   assert.match(transition, /window\.dispatchEvent\(new Event\("xhub:page-reveal-content"\)\)/);
   assert.match(chrome, /delay: hasMounted \? \.4 : 0/);
   assert.match(css, /\.page-transition-screen \{[^}]*background:#141517;[^}]*will-change:transform;/s);
