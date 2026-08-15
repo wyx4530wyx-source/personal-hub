@@ -119,11 +119,11 @@ export function AdminPanel({ onLogout }: { onLogout?:() => void }) {
           </>}
 
           {kind === "video" && <>
-            <label className="file-field"><span>选择视频 <em>必填</em></span><input name="file" type="file" accept="video/*" required /><small>推荐 MP4 格式，单个视频不超过 250 MB。</small></label>
+            <label className="file-field"><span>选择视频 <em>必填</em></span><input name="file" type="file" accept="video/*" required /><small>推荐 MP4 格式，单个视频不超过 50 MB。</small></label>
             <label className="file-field"><span>视频封面</span><input name="cover" type="file" accept="image/*" /><small>没有封面时会使用网站自带图片。</small></label>
           </>}
 
-          {kind === "download" && <label className="file-field"><span>选择文件 <em>必填</em></span><input name="file" type="file" required /><small>可以上传 PDF、ZIP、图片、文档等，单个文件不超过 250 MB。</small></label>}
+          {kind === "download" && <label className="file-field"><span>选择文件 <em>必填</em></span><input name="file" type="file" required /><small>可以上传 PDF、ZIP、图片、文档等，单个文件不超过 50 MB。</small></label>}
 
           <button className="publish-button" type="submit" disabled={busy}>{busy ? "正在处理，请稍等……" : labels[kind]}</button>
           {message && <p className={`admin-message ${message.includes("失败") || message.includes("请") && !message.includes("不要") ? "error" : ""}`} role="status">{message}</p>}

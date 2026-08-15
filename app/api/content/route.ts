@@ -3,6 +3,8 @@ import { isAdminRequest } from "@/lib/admin-auth";
 import { isAdminAccessAllowed } from "@/lib/admin-access-server";
 
 const allowedTypes = new Set<ContentType>(["post", "video", "download"]);
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 25 * 1024 * 1024;
 
 function slugify(value: string) {
   const ascii = value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -69,7 +71,8 @@ export async function POST(request: Request) {
     const file = form.get("file") instanceof File ? form.get("file") as File : null;
     const cover = form.get("cover") instanceof File ? form.get("cover") as File : null;
     if ((type === "video" || type === "download") && !file) return Response.json({ error: "请选择需要上传的文件" }, { status: 400 });
-    if (file && file.size > 250 * 1024 * 1024) return Response.json({ error: "单个文件请不要超过 250 MB" }, { status: 400 });
+    if (file && file.size > MAX_FILE_SIZE) return Response.json({ error: "单个文件请不要超过 50 MB" }, { status: 400 });
+    if (cover && cover.size > MAX_IMAGE_SIZE) return Response.json({ error: "封面图片请不要超过 25 MB" }, { status: 400 });
 
     await ensureContentSchema();
     const fileKey = await storeFile(file);
@@ -77,6 +80,7 @@ export async function POST(request: Request) {
     const galleryFiles = form.getAll("gallery").filter((value): value is File => value instanceof File && value.size > 0);
     const galleryKeys: string[] = [];
     for (const image of galleryFiles.slice(0, 12)) {
+      if (image.size > MAX_IMAGE_SIZE) return Response.json({ error:"每张图片请不要超过 25 MB" }, { status:400 });
       const key = await storeFile(image);
       if (key) galleryKeys.push(key);
     }
@@ -94,7 +98,7 @@ export async function POST(request: Request) {
       const image = form.get(block.field);
       if (!(image instanceof File) || image.size === 0) continue;
       if (!image.type.startsWith("image/")) return Response.json({ error:"正文图片的文件格式不正确" }, { status:400 });
-      if (image.size > 25 * 1024 * 1024) return Response.json({ error:"每张正文图片请不要超过 25 MB" }, { status:400 });
+      if (image.size > MAX_IMAGE_SIZE) return Response.json({ error:"每张正文图片请不要超过 25 MB" }, { status:400 });
       const key = await storeFile(image);
       if (key) contentBlocks.push({ type:"image", key, alt:block.alt.slice(0, 200) });
     }

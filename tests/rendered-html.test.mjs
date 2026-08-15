@@ -141,6 +141,10 @@ test("publishes interleaved text and image blocks while keeping old posts compat
   assert.match(admin, /contentBlocks/);
   assert.match(route, /form\.get\(block\.field\)/);
   assert.match(route, /JSON\.stringify\(contentBlocks\)/);
+  assert.match(route, /MAX_FILE_SIZE = 50 \* 1024 \* 1024/);
+  assert.match(route, /MAX_IMAGE_SIZE = 25 \* 1024 \* 1024/);
+  assert.match(admin, /单个视频不超过 50 MB/);
+  assert.match(admin, /单个文件不超过 50 MB/);
   assert.match(route, /一篇帖子最多添加 20 张正文图片/);
   assert.match(store, /content_blocks AS contentBlocks/);
   assert.match(store, /ALTER TABLE content_items ADD COLUMN content_blocks/);
@@ -155,11 +159,12 @@ test("publishes interleaved text and image blocks while keeping old posts compat
 });
 
 test("gates content management behind a signed server-controlled admin session", async () => {
-  const [page, gate, authRoute, auth, access, contentRoute, panel, chrome, css] = await Promise.all([
+  const [page, gate, authRoute, auth, loginLimit, access, contentRoute, panel, chrome, css] = await Promise.all([
     readFile(new URL("../app/admin/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/AdminGate.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/admin-auth/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/admin-auth.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/admin-login-limit.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/admin-access.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/content/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../components/AdminPanel.tsx", import.meta.url), "utf8"),
@@ -178,6 +183,10 @@ test("gates content management behind a signed server-controlled admin session",
   assert.match(gate, /page-transition-curve page-transition-curve-top/);
   assert.match(gate, /transitionPhase === "revealing"/);
   assert.match(authRoute, /verifyAdminCredentials/);
+  assert.match(authRoute, /checkAdminLoginLimit/);
+  assert.match(authRoute, /recordAdminLoginFailure/);
+  assert.match(authRoute, /status:429/);
+  assert.match(authRoute, /Retry-After/);
   assert.match(authRoute, /Set-Cookie/);
   assert.match(auth, /HttpOnly; SameSite=Strict/);
   assert.match(auth, /crypto\.subtle\.sign\("HMAC"/);
@@ -185,6 +194,10 @@ test("gates content management behind a signed server-controlled admin session",
   assert.doesNotMatch(auth, /const ADMIN_PASSWORD\s*=/);
   assert.doesNotMatch(auth, /const ADMIN_PASSWORD_HASH\s*=/);
   assert.doesNotMatch(auth, /const SESSION_SECRET\s*=/);
+  assert.match(loginLimit, /LOGIN_FAILURE_LIMIT = 5/);
+  assert.match(loginLimit, /LOGIN_BLOCK_SECONDS = 15 \* 60/);
+  assert.match(loginLimit, /cf-connecting-ip/);
+  assert.match(loginLimit, /CREATE TABLE IF NOT EXISTS admin_login_attempts/);
   assert.match(access, /cf-connecting-ip/);
   assert.match(access, /cf-ray/);
   assert.match(access, /192/);
