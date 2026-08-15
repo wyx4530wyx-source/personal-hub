@@ -54,7 +54,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       <PageTransition />
       <Live2DPio />
       <footer className="site-footer">
-        <div className="footer-bottom"><span>© 2026 Ibuki</span><span>Shanghai · China</span><span>Built with curiosity</span><span className="live2d-credit">Live2D · live2d-widget · Pio</span></div>
+        <div className="footer-bottom"><span>© 2026 Xing</span><span>Shanghai · China</span><span>Built with curiosity</span><span className="live2d-credit">Live2D · live2d-widget · Pio</span></div>
       </footer>
     </SiteMusicProvider>
   );

@@ -20,14 +20,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
   const base = new URL(`${protocol}://${host}`);
-  const description = "Student. Creator. Explorer. Notes, films, and useful things from Ibuki.";
+  const description = "Student. Creator. Explorer. Notes, films, and useful things from Xing.";
   return {
     metadataBase: base,
-    title: { default: "IBUKI — Personal Hub", template: "%s — IBUKI" },
+    title: { default: "XING — Personal Hub", template: "%s — XING" },
     description,
     icons: { icon: "/og.png", shortcut: "/og.png" },
-    openGraph: { title: "IBUKI — Personal Hub", description, type: "website", images: [{ url: new URL("/og.png", base).toString(), width: 1732, height: 908, alt: "IBUKI — Student. Creator. Explorer." }] },
-    twitter: { card: "summary_large_image", title: "IBUKI — Personal Hub", description, images: [new URL("/og.png", base).toString()] },
+    openGraph: { title: "XING — Personal Hub", description, type: "website", images: [{ url: new URL("/og.png", base).toString(), width: 1732, height: 908, alt: "XING — Student. Creator. Explorer." }] },
+    twitter: { card: "summary_large_image", title: "XING — Personal Hub", description, images: [new URL("/og.png", base).toString()] },
   };
 }
 
