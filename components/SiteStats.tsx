@@ -11,7 +11,6 @@ function displayNumber(value: number) {
 
 export function SiteStats() {
   const [stats, setStats] = useState(fallbackStats);
-  const [loading, setLoading] = useState(true);
   const [liking, setLiking] = useState(false);
   const [feedback, setFeedback] = useState(false);
   const feedbackTimer = useRef<number | null>(null);
@@ -28,7 +27,6 @@ export function SiteStats() {
         const next = await response.json() as SiteStatsSnapshot;
         setStats({ ...next, online: Math.max(1, next.online) });
       } catch { /* keep the visible fallback */ }
-      finally { setLoading(false); }
     };
     window.addEventListener(SITE_STATS_EVENT, update);
     void refresh();
@@ -63,7 +61,7 @@ export function SiteStats() {
   };
 
   return (
-    <div className="site-stats-grid" aria-label="网站数据" data-page-loading={loading ? "true" : undefined}>
+    <div className="site-stats-grid" aria-label="网站数据">
       <button className={`site-stat site-stat-like ${feedback ? "is-liked" : ""}`} type="button" onClick={addLike} disabled={liking} aria-label="给网站点赞">
         <strong>{displayNumber(stats.likes)}</strong>
         <span>累计获赞数</span>

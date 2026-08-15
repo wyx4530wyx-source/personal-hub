@@ -289,10 +289,9 @@ test("uses reliable native links for local navigation", async () => {
 });
 
 test("adds a guarded curved-curtain transition for internal navigation", async () => {
-  const [chrome, transition, liveContent, css] = await Promise.all([
+  const [chrome, transition, css] = await Promise.all([
     readFile(new URL("../components/SiteChrome.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/PageTransition.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../components/LiveContent.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
@@ -304,13 +303,6 @@ test("adds a guarded curved-curtain transition for internal navigation", async (
   assert.match(transition, /phaseRef\.current !== "idle"/);
   assert.match(transition, /root\.style\.scrollBehavior = "auto"/);
   assert.match(transition, /window\.scrollTo\(0, 0\)/);
-  assert.match(transition, /currentRoute === expectedRoute/);
-  assert.match(transition, /page !== outgoingPageRef\.current/);
-  assert.match(transition, /data-page-loading/);
-  assert.match(transition, /visibleImages\.every\(\(image\) => image\.complete\)/);
-  assert.match(transition, /document\.fonts\.ready/);
-  assert.match(transition, /await nextPaint\(\);/);
-  assert.match(liveContent, /data-page-loading=\{content\.loading \? "true" : undefined\}/);
   assert.match(transition, /window\.dispatchEvent\(new Event\("xhub:page-reveal-content"\)\)/);
   assert.match(chrome, /delay: hasMounted \? \.4 : 0/);
   assert.match(css, /\.page-transition-screen \{[^}]*background:#141517;[^}]*will-change:transform;/s);

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 type TransitionPhase = "idle" | "covering" | "covered" | "revealing";
@@ -20,23 +20,14 @@ function pageLabel(pathname: string) {
   return PAGE_LABELS[pathname] || "XHUB";
 }
 
-function pause(milliseconds: number) {
-  return new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
-}
-
-function nextPaint() {
-  return new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
-}
-
 export function PageTransition() {
   const router = useRouter();
+  const pathname = usePathname();
   const reduceMotion = useReducedMotion();
   const [phase, setPhase] = useState<TransitionPhase>("idle");
   const [label, setLabel] = useState("XHUB");
   const phaseRef = useRef<TransitionPhase>("idle");
   const destinationRef = useRef<string | null>(null);
-  const outgoingRouteRef = useRef("");
-  const outgoingPageRef = useRef<Element | null>(null);
   const navigationFallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -73,8 +64,6 @@ export function PageTransition() {
       }
 
       destinationRef.current = destinationPath;
-      outgoingRouteRef.current = currentRoute;
-      outgoingPageRef.current = document.querySelector("main.page-shell");
       phaseRef.current = "covering";
       setLabel(pageLabel(destination.pathname));
       setPhase("covering");
@@ -87,43 +76,8 @@ export function PageTransition() {
   useEffect(() => {
     if (phase !== "covered" || !destinationRef.current) return;
 
-    let cancelled = false;
-    const destination = new URL(destinationRef.current, window.location.href);
-    const expectedRoute = `${destination.pathname}${destination.search}`;
-    const outgoingPathname = outgoingRouteRef.current.split("?")[0];
-    const startedAt = Date.now();
-
-    const waitUntilReady = async () => {
-      let page: Element | null = null;
-      while (!cancelled && Date.now() - startedAt < 12_000) {
-        const currentRoute = `${window.location.pathname}${window.location.search}`;
-        page = document.querySelector("main.page-shell");
-        const routeChanged = currentRoute === expectedRoute;
-        const pageChanged = outgoingPathname === destination.pathname || page !== outgoingPageRef.current;
-        if (routeChanged && page && pageChanged) break;
-        await pause(50);
-      }
-      if (cancelled || !page || `${window.location.pathname}${window.location.search}` !== expectedRoute) return;
-
-      while (!cancelled && page.querySelector('[data-page-loading="true"]') && Date.now() - startedAt < 12_000) {
-        await pause(50);
-      }
-
-      const imageDeadline = Math.min(startedAt + 12_000, Date.now() + 6_000);
-      while (!cancelled && Date.now() < imageDeadline) {
-        const visibleImages = Array.from(page.querySelectorAll("img")).filter((image) => {
-          const bounds = image.getBoundingClientRect();
-          return bounds.top < window.innerHeight * 1.25 && bounds.bottom > 0;
-        });
-        if (visibleImages.every((image) => image.complete)) break;
-        await pause(50);
-      }
-
-      if (document.fonts) await Promise.race([document.fonts.ready.catch(() => undefined), pause(1_200)]);
-      await nextPaint();
-      await nextPaint();
-      if (cancelled) return;
-
+    if (navigationFallbackRef.current) clearTimeout(navigationFallbackRef.current);
+    const revealTimer = window.setTimeout(() => {
       const root = document.documentElement;
       const previousScrollBehavior = root.style.scrollBehavior;
       root.style.scrollBehavior = "auto";
@@ -131,11 +85,10 @@ export function PageTransition() {
       requestAnimationFrame(() => { root.style.scrollBehavior = previousScrollBehavior; });
       phaseRef.current = "revealing";
       setPhase("revealing");
-    };
+    }, 80);
 
-    void waitUntilReady();
-    return () => { cancelled = true; };
-  }, [phase]);
+    return () => clearTimeout(revealTimer);
+  }, [pathname, phase]);
 
   useEffect(() => {
     if (phase !== "revealing") return;
@@ -162,7 +115,7 @@ export function PageTransition() {
       router.push(destination);
       navigationFallbackRef.current = setTimeout(() => {
         if (phaseRef.current === "covered") window.location.assign(destination);
-      }, 15000);
+      }, 8000);
       return;
     }
 

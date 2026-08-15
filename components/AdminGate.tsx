@@ -88,7 +88,7 @@ export function AdminGate() {
 
   if (authState === "signed-in") return <><AdminPanel onLogout={logout} />{curtain}</>;
 
-  return <><main className="admin-login-page" data-page-loading={authState === "checking" ? "true" : undefined}>
+  return <><main className="admin-login-page">
     <section className="admin-login-card" aria-busy={authState === "checking"}>
       <span className="admin-login-kicker">XHUB · PRIVATE</span>
       <h1>{authState === "checking" ? "正在验证" : "内容管理"}</h1>
