@@ -205,7 +205,7 @@ img,video { display:block; width:100%; }
 .about-portrait { position:sticky; top:120px; height:fit-content; }
 .about-portrait img { aspect-ratio:3/4; object-fit:cover; filter:grayscale(100%); }
 .about-copy h2 { margin:0 0 45px; font-size:clamp(2.4rem,5vw,5.5rem); line-height:.98; letter-spacing:-.055em; font-weight:450; }
-.about-copy>p { color:#49494e; font-size:clamp(1.05rem,1.55vw,1.35rem); line-height:1.65; max-width:720px; text-indent:2em; }
+.about-copy>p { color:#49494e; font-size:clamp(1.05rem,1.55vw,1.35rem); line-height:1.65; max-width:720px; }
 .info-block { border-top:1px solid var(--line); padding:28px 0; display:grid; grid-template-columns:160px 1fr; gap:30px; }
 .info-block h3 { margin:0; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; font-size:.7rem; font-weight:450; }
 .connect-list { display:flex; flex-direction:column; }
