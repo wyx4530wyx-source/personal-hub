@@ -25,17 +25,23 @@ type ApiItem = {
 
 function useContent(type: ApiItem["type"]) {
   const [items, setItems] = useState<ApiItem[]>([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
+    let active = true;
+    setLoading(true);
     fetch(`/api/content?type=${type}`)
       .then((response) => response.ok ? response.json() : Promise.reject())
-      .then((data) => setItems(data.items || []))
-      .catch(() => setItems([]));
+      .then((data) => { if (active) setItems(data.items || []); })
+      .catch(() => { if (active) setItems([]); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [type]);
-  return items;
+  return { items, loading };
 }
 
 export function LivePosts({ limit }: { limit?: number }) {
-  const uploaded = useContent("post").map((item) => ({
+  const content = useContent("post");
+  const uploaded = content.items.map((item) => ({
     slug: item.slug,
     title: item.title,
     date: item.publishedAt.replaceAll("-", "."),
@@ -44,11 +50,12 @@ export function LivePosts({ limit }: { limit?: number }) {
     excerpt: item.description,
   }));
   const all = [...uploaded, ...posts];
-  return <div className={`post-grid ${limit ? "" : "archive-grid"}`}>{all.slice(0, limit).map((post, index) => <PostCard key={post.slug} post={post} index={index} />)}</div>;
+  return <div className={`post-grid ${limit ? "" : "archive-grid"}`} data-page-loading={content.loading ? "true" : undefined}>{all.slice(0, limit).map((post, index) => <PostCard key={post.slug} post={post} index={index} />)}</div>;
 }
 
 export function HomeRecentPosts({ limit = 3 }: { limit?: number }) {
-  const uploaded = useContent("post").map((item) => ({
+  const content = useContent("post");
+  const uploaded = content.items.map((item) => ({
     slug: item.slug,
     title: item.title,
     date: item.publishedAt.replaceAll("-", "."),
@@ -65,11 +72,11 @@ export function HomeRecentPosts({ limit = 3 }: { limit?: number }) {
     .slice(0, limit);
 
   if (!recent.length) {
-    return <div className="home-recent-list"><p className="home-recent-empty">暂无帖子</p></div>;
+    return <div className="home-recent-list" data-page-loading={content.loading ? "true" : undefined}><p className="home-recent-empty">暂无帖子</p></div>;
   }
 
   return (
-    <div className="home-recent-list" aria-label="最新发布的帖子">
+    <div className="home-recent-list" aria-label="最新发布的帖子" data-page-loading={content.loading ? "true" : undefined}>
       {recent.map((post, index) => (
         <a href={`/posts/${post.slug}`} key={post.slug}>
           <span>{String(index + 1).padStart(2, "0")}</span>
@@ -83,7 +90,8 @@ export function HomeRecentPosts({ limit = 3 }: { limit?: number }) {
 }
 
 export function LiveVideos({ limit }: { limit?: number }) {
-  const uploaded = useContent("video").map((item) => ({
+  const content = useContent("video");
+  const uploaded = content.items.map((item) => ({
     id: item.id,
     title: item.title,
     date: item.publishedAt.replaceAll("-", "."),
@@ -93,11 +101,12 @@ export function LiveVideos({ limit }: { limit?: number }) {
     src: item.file || "",
   }));
   const all = [...uploaded, ...videos];
-  return <div className="video-grid">{all.slice(0, limit).map((video, index) => <VideoCard key={video.id} video={video} index={index} />)}</div>;
+  return <div className="video-grid" data-page-loading={content.loading ? "true" : undefined}>{all.slice(0, limit).map((video, index) => <VideoCard key={video.id} video={video} index={index} />)}</div>;
 }
 
 export function LiveDownloads({ limit }: { limit?: number }) {
-  const uploaded = useContent("download").map((item) => ({
+  const content = useContent("download");
+  const uploaded = content.items.map((item) => ({
     id: item.id,
     name: item.title || item.fileName || "未命名文件",
     description: item.description,
@@ -105,5 +114,5 @@ export function LiveDownloads({ limit }: { limit?: number }) {
     file: item.file || "#",
   }));
   const all = [...uploaded, ...downloads];
-  return <div className="download-list">{all.slice(0, limit).map((item, index) => <DownloadRow key={item.id} item={item} index={index} />)}</div>;
+  return <div className="download-list" data-page-loading={content.loading ? "true" : undefined}>{all.slice(0, limit).map((item, index) => <DownloadRow key={item.id} item={item} index={index} />)}</div>;
 }
