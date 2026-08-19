@@ -181,7 +181,8 @@ test("publishes interleaved text and image blocks while keeping old posts compat
   assert.match(article, /: <><MarkdownBody content=\{display\.content\}/);
   assert.match(schema, /contentBlocks: text\("content_blocks"\)/);
   assert.match(migration, /ADD `content_blocks`/);
-  assert.match(css, /\.article-block-image \{[^}]*width:100vw;[^}]*transform:translateX\(-50%\);/s);
+  assert.match(css, /\.article-block-image \{[^}]*width:100%;[^}]*margin:80px 0;/s);
+  assert.match(css, /@media \(max-width:800px\) \{[\s\S]*\.article-block-image \{[^}]*width:100vw;[^}]*transform:translateX\(-50%\);/s);
   assert.match(css, /\.article-block-image img \{[^}]*width:100%;[^}]*height:auto;/s);
 });
 
